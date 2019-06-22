@@ -28,6 +28,20 @@ In addition to support for both two-by-two and three-by-three maps, the
 package also supports four methods for calculating breaks for bivariate
 maps.
 
+## What’s New?
+
+`biscale` v0.1.2 is out\! This is a maintence release that includes typo
+corrections. It does add the ability to pass objects to `bi_legend()`’s
+x and y axis label arguments, which may be useful to some users. The
+`biscale` workflow has also been tested with the new [release candidate
+for `cowplot`](https://github.com/wilkelab/cowplot) as well as the
+amazing `ggplot2` update and works as expected.
+
+## What’s on the Roadmap?
+
+A companion to `bi_scale_fill()`, `bi_scale_color()`, is planned to
+accommodate bivariate mapping with point data.
+
 ## Installation
 
 Since the package does not directly use functions from `sf`, it is a
@@ -105,7 +119,7 @@ Once breaks are created, we can use `bi_scale_fill()` as part of our
 ``` r
 # create map
 map <- ggplot() +
-  geom_sf(data = data, aes(fill = bi_class), color = "white", size = 0.1, show.legend = FALSE) +
+  geom_sf(data = data, mapping = aes(fill = bi_class), color = "white", size = 0.1, show.legend = FALSE) +
   bi_scale_fill(pal = "DkBlue", dim = 3) +
   labs(
     title = "Race and Income in St. Louis, MO",
@@ -147,7 +161,7 @@ experimentation depending on the shape of the map itself.
 # combine map with legend
 finalPlot <- ggdraw() +
   draw_plot(map, 0, 0, 1, 1) +
-  draw_plot(legend, 0.2, .7, 0.2, 0.2)
+  draw_plot(legend, 0.2, .65, 0.2, 0.2)
 ```
 
 ### Breaks for Bivariate Mapping
@@ -179,5 +193,5 @@ website](https://slu-opengis.github.io/biscale/reference/bi_pal.html).
 ## Contributor Code of Conduct
 
 Please note that this project is released with a [Contributor Code of
-Conduct](.github/CODE_OF_CONDUCT.md). By participating in this project
-you agree to abide by its terms.
+Conduct](https://slu-opengis.github.io/biscale/CODE_OF_CONDUCT.html). By
+participating in this project you agree to abide by its terms.
