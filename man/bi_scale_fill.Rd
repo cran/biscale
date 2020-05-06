@@ -2,13 +2,14 @@
 % Please edit documentation in R/bi_scale_fill.R
 \name{bi_scale_fill}
 \alias{bi_scale_fill}
-\title{Apply Bivariate Scale to ggplot Object}
+\title{Apply Bivariate Fill to ggplot Object}
 \usage{
 bi_scale_fill(pal, dim = 3, ...)
 }
 \arguments{
-\item{pal}{A palette name; one of \code{"Brown"}, \code{"DkBlue"},
-\code{"DkCyan"}, \code{"DkViolet"}, or \code{"GrPink"}.}
+\item{pal}{Either palette name (one of \code{"Brown"}, \code{"DkBlue"},
+\code{"DkCyan"}, \code{"DkViolet"}, or \code{"GrPink"}) or a custom palette
+object created with \code{\link{bi_pal_manual}}.}
 
 \item{dim}{The dimensions of the palette, either \code{2} for a two-by-two palette or
 \code{3} for a three-by-three palette.}
