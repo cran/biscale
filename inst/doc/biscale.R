@@ -4,18 +4,15 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 
-## ----exampleMap, echo=FALSE, out.width = '100%'-------------------------------
-knitr::include_graphics("../man/figures/biscale.001.png")
+## ----example-maps, echo=FALSE, out.width = '100%'-----------------------------
+knitr::include_graphics("../man/figures/biscale.001.jpeg")
 
-## ----quantileBreaks, echo=FALSE, out.width = '100%'---------------------------
-knitr::include_graphics("../man/figures/biscale.004.png")
+## ----quantile-breaks, echo=FALSE, out.width = '100%'--------------------------
+knitr::include_graphics("../man/figures/biscale.002.jpeg")
 
-## ----otherBreaks, echo=FALSE, out.width = '100%'------------------------------
-knitr::include_graphics("../man/figures/biscale.005.png")
+## ----other-breaks, echo=FALSE, out.width = '100%'-----------------------------
+knitr::include_graphics("../man/figures/biscale.003.jpeg")
 
-## ----2by2Pals, echo=FALSE, out.width = '100%'---------------------------------
-knitr::include_graphics("../man/figures/biscale.002.png")
-
-## ----3by3Pals, echo=FALSE, out.width = '100%'---------------------------------
-knitr::include_graphics("../man/figures/biscale.003.png")
+## ----final-map, echo=FALSE, out.width = '100%'--------------------------------
+knitr::include_graphics("../man/figures/biscale.004.jpeg")
 

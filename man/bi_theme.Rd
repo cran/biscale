@@ -13,18 +13,22 @@ bi_theme(
 )
 }
 \arguments{
-\item{base_family}{A character string representing the font family to be used in the map.}
+\item{base_family}{A character string representing the font family to be used
+in the map.}
 
 \item{base_size}{A number representing the base size used in the map.}
 
-\item{bg_color}{A character string containing the hex value for the desired color of the map's background.}
+\item{bg_color}{A character string containing the hex value for the desired
+color of the map's background.}
 
-\item{font_color}{A character string containing the hex value for the desired color of the map's text.}
+\item{font_color}{A character string containing the hex value for the desired
+color of the map's text.}
 
 \item{...}{Arguments to pass on to \code{ggplot2}'s \code{theme} function}
 }
 \description{
-A theme for creating a simple, clean bivariate map using \code{\link{ggplot2}}.
+A theme for creating a simple, clean bivariate map using
+    \code{\link{ggplot2}}.
 }
 \examples{
 # load suggested dependencies
@@ -32,7 +36,7 @@ library(ggplot2)
 library(sf)
 
 # add breaks, 3x3
-data <- bi_class(stl_race_income, x = pctWhite, y = medInc, dim = 3)
+data <- bi_class(stl_race_income, x = pctWhite, y = medInc, style = "quantile", dim = 3)
 
 # create map
 ggplot() +

@@ -4,40 +4,66 @@
 \alias{bi_legend}
 \title{Create Object for Drawing Legend}
 \usage{
-bi_legend(pal, dim = 3, xlab, ylab, size)
+bi_legend(pal, dim = 3, xlab, ylab, size = 10, flip_axes = FALSE,
+    rotate_pal = FALSE, pad_width = NA, pad_color = "#ffffff",
+    breaks = NULL, arrows = TRUE)
 }
 \arguments{
-\item{pal}{A palette name; one of \code{"Brown"}, \code{"DkBlue"},
-\code{"DkCyan"}, \code{"DkViolet"}, or \code{"GrPink"}.}
+\item{pal}{A palette name or a vector containing a custom palette. See
+the help file for \code{\link{bi_pal}} for complete list of built-in palette
+names. If you are providing a custom palette, it must follow the formatting
+described in the 'Advanced Options' vignette.}
 
-\item{dim}{The dimensions of the palette, either \code{2} for a two-by-two palette or
-\code{3} for a three-by-three palette.}
+\item{dim}{The dimensions of the palette. To use the built-in palettes,
+    this value must be either \code{2}, \code{3}, or \code{4}. A value of
+    \code{3}, for example, would be used to create a three-by-three bivariate
+    map with a total of 9 classes.
+
+    If you are using a custom palette, this value may be larger (though these
+    maps can be very hard to interpret). See the 'Advanced Options' vignette
+    for details on the relationship between \code{dim} values and palette size.}
 
 \item{xlab}{Text for desired x axis label on legend}
 
 \item{ylab}{Text for desired y axis label on legend}
 
-\item{size}{Size of axis labels}
+\item{size}{A numeric scalar; size of axis labels}
+
+\item{flip_axes}{A logical scalar; if \code{TRUE}, the axes of the palette
+will be flipped. If \code{FALSE} (default), the palette will be displayed
+on its original axes. Custom palettes with 'dim' greater
+than 4 cannot take advantage of flipping axes.}
+
+\item{rotate_pal}{A logical scalar; if \code{TRUE}, the palette will be
+rotated 180 degrees. If \code{FALSE} (default), the palette will be
+displayed in its original orientation. Custom palettes with 'dim' greater
+than 4 cannot take advantage of palette rotation.}
+
+\item{pad_width}{An optional numeric scalar; controls the width of padding
+between tiles in the legend}
+
+\item{pad_color}{An optional character scalar; controls the color of padding
+between tiles in the legend}
+
+\item{breaks}{An optional list created by \code{bi_class_breaks}. Depending
+on the options selected when making the list, labels will placed
+showing the corresponding range of values for each axis or, if
+\code{split = TRUE}, showing the individual breaks.}
+
+\item{arrows}{A logical scalar; if \code{TRUE} (default), directional arrows
+will be added to both the x and y axes of the legend. If you want to
+suppress these arrows, especially if you are supplying breaks to create
+a more detailed legend, this parameter can be set of \code{FALSE}.}
 }
 \value{
 A \code{ggplot} object with a bivariate legend.
 }
 \description{
-Creates a \code{ggplot} object containing a legend that is specific
-    to bivariate mapping.
+Creates a \code{ggplot} object containing a legend that is
+    specific to bivariate mapping.
 }
 \examples{
-# construct 2x2 legend
-legend <- bi_legend(pal = "GrPink",
-                    dim = 2,
-                    xlab = "Higher \% White ",
-                    ylab = "Higher Income ",
-                    size = 16)
-
-# print legend
-legend
-
-# construct 3x3 legend
+# sample 3x3 legend
 legend <- bi_legend(pal = "GrPink",
                     dim = 3,
                     xlab = "Higher \% White ",
@@ -47,4 +73,25 @@ legend <- bi_legend(pal = "GrPink",
 # print legend
 legend
 
+# sample 3x3 legend with breaks
+## create vector of breaks
+break_vals <- bi_class_breaks(stl_race_income, style = "quantile",
+    x = pctWhite, y = medInc, dim = 3, dig_lab = c(x = 4, y = 5),
+    split = TRUE)
+
+## create legend
+legend <- bi_legend(pal = "GrPink",
+                    dim = 3,
+                    xlab = "Higher \% White ",
+                    ylab = "Higher Income ",
+                    size = 16,
+                    breaks = break_vals,
+                    arrows = FALSE)
+
+# print legend
+legend
+
+}
+\seealso{
+\code{\link{bi_pal}}
 }

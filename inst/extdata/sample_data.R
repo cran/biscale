@@ -3,6 +3,7 @@
 library(dplyr)
 library(tidycensus)
 library(tigris)
+library(sf)
 
 # download median income data
 get_acs(year = 2017, geography = "tract", variables = "B19019_001", state = 29, county = 510) %>%
@@ -27,4 +28,9 @@ tracts <- tracts %>%
 
 stl_race_income <- tracts
 
-usethis::use_data(stl_race_income)
+usethis::use_data(stl_race_income, overwrite = TRUE)
+
+stl_race_income_point <- st_centroid(stl_race_income)
+
+usethis::use_data(stl_race_income_point, overwrite = TRUE)
+

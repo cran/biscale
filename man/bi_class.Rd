@@ -4,25 +4,42 @@
 \alias{bi_class}
 \title{Create Classes for Bivariate Maps}
 \usage{
-bi_class(.data, x, y, style = "quantile", dim = 3, keep_factors = FALSE)
+bi_class(.data, x, y, style, dim = 3, keep_factors = FALSE, dig_lab = 3)
 }
 \arguments{
 \item{.data}{A data frame, tibble, or \code{sf} object}
 
-\item{x}{The \code{x} variable}
+\item{x}{The \code{x} variable, either a numeric (including double and integer
+classes) or factor}
 
-\item{y}{The \code{y} variable}
+\item{y}{The \code{y} variable, either a numeric (including double and integer
+classes) or factor}
 
 \item{style}{A string identifying the style used to calculate breaks. Currently
-supported styles are \code{"quantile"} (default), \code{"equal"}, \code{"fisher"},
-and \code{"jenks"}.}
+    supported styles are \code{"quantile"}, \code{"equal"}, \code{"fisher"},
+    and \code{"jenks"}. If both \code{x} and \code{y} are factors, this argument can
+    be omitted.
 
-\item{dim}{The dimensions of the palette, either \code{2} for a two-by-two palette or
-\code{3} for a three-by-three palette.}
+    Note that older versions of \code{biscale} used \code{"quantile"} as the default
+    for this argument. Now that \code{bi_class} accepts factors, this argument
+    no longer as a default and older code will error.}
+
+\item{dim}{The dimensions of the palette. To use the built-in palettes,
+    this value must be either \code{2}, \code{3}, or \code{4}. A value of
+    \code{3}, for example, would be used to create a three-by-three bivariate
+    map with a total of 9 classes.
+
+    If you are using a custom palette, this value may be larger (though these
+    maps can be very hard to interpret).
+
+    If you are using pre-made factors, both factors must have the same number
+    of levels as this value.}
 
 \item{keep_factors}{A logical scalar; if \code{TRUE}, the intermediate factor
 variables created as part of the calculation of \code{bi_class} will be
 retained. If \code{FALSE} (default), they will not be returned.}
+
+\item{dig_lab}{An integer that is passed to \code{base::cut()}}
 }
 \value{
 A copy of \code{.data} with a new variable \code{bi_class} that contains
@@ -45,24 +62,6 @@ table(data$bi_class)
 data <- bi_class(stl_race_income, x = pctWhite, y = medInc, style = "quantile", dim = 3)
 
 # summarize quantile breaks, 3x3
-table(data$bi_class)
-
-# equal breaks
-data <- bi_class(stl_race_income, x = pctWhite, y = medInc, style = "equal", dim = 3)
-
-# summarize equal breaks, 3x3
-table(data$bi_class)
-
-# fisher breaks
-data <- bi_class(stl_race_income, x = pctWhite, y = medInc, style = "fisher", dim = 3)
-
-# summarize fisher breaks, 3x3
-table(data$bi_class)
-
-# jenks breaks
-data <- bi_class(stl_race_income, x = pctWhite, y = medInc, style = "jenks", dim = 3)
-
-# summarize jenks breaks, 3x3
 table(data$bi_class)
 
 }

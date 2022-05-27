@@ -4,15 +4,25 @@
 \alias{bi_scale_fill}
 \title{Apply Bivariate Fill to ggplot Object}
 \usage{
-bi_scale_fill(pal, dim = 3, ...)
+bi_scale_fill(pal, dim = 3, flip_axes = FALSE, rotate_pal = FALSE, ...)
 }
 \arguments{
-\item{pal}{Either palette name (one of \code{"Brown"}, \code{"DkBlue"},
-\code{"DkCyan"}, \code{"DkViolet"}, or \code{"GrPink"}) or a custom palette
-object created with \code{\link{bi_pal_manual}}.}
+\item{pal}{A palette name or a vector containing a custom palette. See
+the help file for \code{bi_pal} for complete list of built-in palette
+names. If you are providing a custom palette, it must follow the formatting
+described in the 'Advanced Options' vignette.}
 
-\item{dim}{The dimensions of the palette, either \code{2} for a two-by-two palette or
-\code{3} for a three-by-three palette.}
+\item{dim}{The dimensions of the palette, either \code{2} for a
+two-by-two palette, \code{3} for a three-by-three palette, or \code{4}
+for a four-by-four palette.}
+
+\item{flip_axes}{A logical scalar; if \code{TRUE} the axes of the palette
+will be flipped. If \code{FALSE} (default), the palette will be displayed
+on its original axes.}
+
+\item{rotate_pal}{A logical scalar; if \code{TRUE} the palette will be
+rotated 180 degrees. If \code{FALSE} (default), the palette will be
+displayed in its original orientation}
 
 \item{...}{Arguments to pass to \code{\link{scale_fill_manual}}}
 }
@@ -25,24 +35,18 @@ Applies the selected palette as the fill aesthetic when \code{\link{geom_sf}}
     mapping.
 }
 \examples{
-# load suggested dependencies
+# load dependencies
 library(ggplot2)
-library(sf)
-
-# add breaks, 2x2
-data <- bi_class(stl_race_income, x = pctWhite, y = medInc, dim = 2)
-
-# create map
-ggplot() +
-  geom_sf(data = data, aes(fill = bi_class), color = "white", size = 0.1, show.legend = FALSE) +
-  bi_scale_fill(pal = "GrPink", dim = 2)
 
 # add breaks, 3x3
-data <- bi_class(stl_race_income, x = pctWhite, y = medInc, dim = 3)
+data <- bi_class(stl_race_income, x = pctWhite, y = medInc, style = "quantile", dim = 3)
 
 # create map
-ggplot() +
+plot <- ggplot() +
   geom_sf(data = data, aes(fill = bi_class), color = "white", size = 0.1, show.legend = FALSE) +
   bi_scale_fill(pal = "GrPink", dim = 3)
 
+}
+\seealso{
+bi_pal
 }

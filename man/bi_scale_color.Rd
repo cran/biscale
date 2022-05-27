@@ -4,17 +4,34 @@
 \alias{bi_scale_color}
 \title{Apply Bivariate Color to ggplot Object}
 \usage{
-bi_scale_color(pal, dim = 3, ...)
+bi_scale_color(pal, dim = 3, flip_axes = FALSE, rotate_pal = FALSE, ...)
 }
 \arguments{
-\item{pal}{Either palette name (one of \code{"Brown"}, \code{"DkBlue"},
-\code{"DkCyan"}, \code{"DkViolet"}, or \code{"GrPink"}) or a custom palette
-object created with \code{\link{bi_pal_manual}}.}
+\item{pal}{A palette name or a vector containing a custom palette. See
+the help file for \code{bi_pal} for complete list of built-in palette
+names. If you are providing a custom palette, it must follow the formatting
+described in the 'Advanced Options' vignette.}
 
-\item{dim}{The dimensions of the palette, either \code{2} for a two-by-two palette or
-\code{3} for a three-by-three palette.}
+\item{dim}{The dimensions of the palette. To use the built-in palettes,
+    this value must be either \code{2}, \code{3}, or \code{4}. A value of
+    \code{3}, for example, would be used to create a three-by-three bivariate
+    map with a total of 9 classes.
 
-\item{...}{Arguments to pass to \code{\link{scale_fill_manual}}}
+    If you are using a custom palette, this value may be larger (though these
+    maps can be very hard to interpret). See the 'Advanced Options' vignette
+    for details on the relationship between \code{dim} values and palette size.}
+
+\item{flip_axes}{A logical scalar; if \code{TRUE} the axes of the palette
+will be flipped. If \code{FALSE} (default), the palette will be displayed
+on its original axes. Custom palettes with 'dim' greater
+than 4 cannot take advantage of flipping axes.}
+
+\item{rotate_pal}{A logical scalar; if \code{TRUE} the palette will be
+rotated 180 degrees. If \code{FALSE} (default), the palette will be
+displayed in its original orientation. Custom palettes with 'dim' greater
+than 4 cannot take advantage of palette rotation.}
+
+\item{...}{Arguments to pass to \code{\link{scale_color_manual}}}
 }
 \value{
 A \code{ggplot} object with the given bivariate palette applied to the data.
@@ -23,4 +40,20 @@ A \code{ggplot} object with the given bivariate palette applied to the data.
 Applies the selected palette as the color aesthetic when \code{\link{geom_sf}}
     is used and the \code{bi_class} variable is given as the \code{color} in the aesthetic
     mapping.
+}
+\examples{
+# load dependencies
+library(ggplot2)
+
+# add breaks, 3x3
+data <- bi_class(stl_race_income, x = pctWhite, y = medInc, style = "quantile", dim = 3)
+
+# create map
+plot <- ggplot() +
+  geom_sf(data = data, aes(color = bi_class), size = 2, show.legend = FALSE) +
+  bi_scale_color(pal = "GrPink", dim = 3)
+
+}
+\seealso{
+bi_pal
 }

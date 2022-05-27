@@ -3,104 +3,98 @@
 
 # biscale <img src="man/figures/logo.png" align="right" />
 
-[![lifecycle](https://img.shields.io/badge/lifecycle-maturing-blue.svg)](https://www.tidyverse.org/lifecycle/#maturing)
-[![Travis-CI Build
-Status](https://travis-ci.com/slu-openGIS/biscale.svg?branch=master)](https://travis-ci.com/slu-openGIS/biscale)
-[![AppVeyor Build
-Status](https://ci.appveyor.com/api/projects/status/github/slu-openGIS/biscale?branch=master&svg=true)](https://ci.appveyor.com/project/chris-prener/biscale)
+![GitHub
+Workflow](https://github.com/chris-prener/biscale/actions/workflows/R-CMD-check.yaml/badge.svg)
 [![Coverage
-status](https://codecov.io/gh/slu-openGIS/biscale/branch/master/graph/badge.svg)](https://codecov.io/github/slu-openGIS/biscale?branch=master)
+status](https://codecov.io/gh/chris-prener/biscale/branch/main/graph/badge.svg)](https://codecov.io/github/chris-prener/biscale?branch=main)
+[![CRAN_status_badge](https://www.r-pkg.org/badges/version/biscale)](https://cran.r-project.org/package=biscale)
+[![cran
+checks](https://cranchecks.info/badges/worst/biscale)](https://cran.r-project.org/web/checks/check_results_biscale.html)
+[![Downloads](https://cranlogs.r-pkg.org/badges/biscale?color=brightgreen)](https://www.r-pkg.org/pkg/biscale)
 [![DOI](https://zenodo.org/badge/183024212.svg)](https://zenodo.org/badge/latestdoi/183024212)
-[![CRAN\_status\_badge](http://www.r-pkg.org/badges/version/biscale)](https://cran.r-project.org/package=biscale)
 
 `biscale` implements a set of functions for bivariate thematic mapping
 based on the
 [tutorial](https://timogrossenbacher.ch/2019/04/bivariate-maps-with-ggplot2-and-sf/)
 written by Timo Grossenbacher and Angelo Zehr as well as a set of
-bivariate mapping palettes from Joshua Stevens’s
-[tutorial](http://www.joshuastevens.net/cartography/make-a-bivariate-choropleth-map/).
-The package currently supports two-by-two and three-by-three bivariate
-maps:
+bivariate mapping palettes, including Joshua Stevens’ [classic color
+schemes](https://www.joshuastevens.net/cartography/make-a-bivariate-choropleth-map/).
 
-![](man/figures/biscale.001.png)
+![](man/figures/biscale.001.jpeg)
 
-In addition to support for both two-by-two and three-by-three maps, the
-package also supports four methods for calculating breaks for bivariate
-maps.
+In addition to support for two-by-two, three-by-three, and four-by-four
+maps, the package also supports a range of methods for calculating
+breaks for bivariate maps.
 
-## What’s New on CRAN?
+## What’s New in v1.0.0?
 
-### Dependency Change
+### New Features
 
-In order to resolve a conflict between the `tibble` package and
-`biscale`, the `sf` package is now a required dependency as opposed to
-being a suggested dependency.
+-   `bi_class()` now accepts factors for one or both of the `x` and `y`
+    variables, allowing more flexibility for how breaks are calculated.
+    If you want finer grained control over your categories, calculate
+    them ahead of time and then pass the factors on to `bi_class()`.
+-   `bi_pal()`, `bi_legend()`, `bi_scale_fill()`, and `bi_scale_color()`
+    functions all support four-by-four bivariate maps when `dim = 4`.
+    Note that the original five palettes do not support four-by-four
+    mapping, but very close approximations (e.g. `DkBlue2` instead of
+    `DkBlue`) are now provided in their place. The legacy palettes are
+    all still included in the package.
+-   The number of built-in palettes has been greatly expanded!
+-   Palettes can now be flipped and rotated (or both!), so that each
+    built-in palette can be displayed in four different configurations.
+    This includes the built-in palettes and any custom palettes that are
+    four-by-four or smaller. If you want to flip or rotate larger
+    palettes, you should make those decisions while creating the palette
+    itself.
+-   The workflow for allowing custom palettes has been overhauled to
+    simply the process - users can provide a named vector for the `pal`
+    arguments in the `bi_pal()`, `bi_legend()`, `bi_scale_fill()`, and
+    `bi_scale_color()` functions. All of these functions will validate
+    your input to ensure that it maps correctly.
+-   `bi_class()` can be used to calculate bivariate breaks for maps
+    larger than four-by-four, though it will return a warning reminding
+    you that these maps are hard to read and that `biscale` does not
+    provide palettes for larger maps. Instead, you should provide a
+    custom palette.
+-   `bi_class_breaks()` can be used with `bi_legend()` to facilitate
+    optionally adding break values to your legends. Like `bi_class()`,
+    this new function accepts both continuous and pre-made factors.
 
-### Mapping Points
+### Breaking Changes
 
-The development version contains a new function, `bi_scale_color()`,
-which replicates the bivariate mapping workflow for point and line data.
-We don’t have any sample data for it yet, but the workflow mapping point
-data looks like this:
+-   `R` version 3.4 is no longer supported - please use at least `R`
+    version 3.5
+-   There is no default supplied for `bi_class()`’s `style` argument
+    since `bi_class()` now accepts factors as well. Users that relied on
+    the default behavior of `bi_class()` will now receive an error
+    asking you to specify a `style` for calculating breaks.
 
-``` r
-# create classes
-data <- bi_class(pointData, x = xvar, y = yvar, style = "quantile", dim = 3)
+### Deprecated Functions
 
-# create map
-map <- ggplot() +
-  geom_sf(data = pointData, mapping = aes(color = bi_class), show.legend = FALSE) +
-  bi_scale_color(pal = "DkBlue", dim = 3) +
-  bi_theme()
-```
+-   `bi_pal_manual()` now returns a warning that it has been deprecated
+    and will be removed in a later release of `biscale` (planned for the
+    end of 2022). Please update your workflows to use the new approach
+    to generating custom palettes.
 
-The creation of classes works the same way. The only difference is (a)
-the use of the `color` (or `colour`) argument in the aesthetic mapping
-for `geom_sf()` and the use of `bi_scale_color()` afterwards\!
+### Internal Improvements
 
-### Custom Palettes
+-   `sf` is now a suggested package instead of an imported package, and
+    several dependencies have been removed in the process of
+    re-factoring all of the code in `biscale`.
 
-If you want to use a different palette with `biscale` plots, you can use
-the new `bi_pal_manual()` function to create the plot and then apply it
-to `bi_scale_fill()` or `bi_scale_color()` using the `pal` argument.
+### Documentation Improvements
 
-``` r
-# create classes
-data <- bi_class(pointData, x = xvar, y = yvar, style = "quantile", dim = 2)
-
-# create custom palette
-custom_pal <- bi_pal_manual(val_1_1 = "#E8E8E8", val_1_2 = "#73AE80", val_2_1 = "#6C83B5", val_2_2 = "#2A5A5B")
-
-# create map
-map <- ggplot() +
-  geom_sf(data = pointData, mapping = aes(color = bi_class), show.legend = FALSE) +
-  bi_scale_color(pal = custom_pal, dim = 3) +
-  bi_theme()
-```
+-   Documentation updates have been made, including the addition of a
+    number of new examples and vignettes. These include detailed
+    articles on bivariate palettes, working with breaks and legends, and
+    creating bivariate maps with raster data.
 
 ## Installation
 
-### Installing Dependencies
-
-You should check the [`sf` package
-website](https://r-spatial.github.io/sf/) and the [`areal` package
-website](https://slu-openGIS.github.io/areal/) for the latest details on
-installing dependencies for that package. Instructions vary
-significantly by operating system. For best results, have `sf` installed
-before you install `biscale`. Other dependencies, like `dplyr`, will be
-installed automatically with `areal` if they are not already present.
-
-For Linux users, steps will vary based on the flavor being used. Our
-[configuration
-file](https://github.com/slu-openGIS/biscale/blob/master/.travis.yml)
-for Travis CI and its associated [bash
-script](https://github.com/slu-openGIS/biscale/blob/master/.travis/install.sh)
-should be useful in determining the necessary components to install.
-
 ### Installing biscale
 
-Once `sf` is installed, the easiest way to get `biscale` is to install
-it from CRAN:
+The easiest way to get `biscale` is to install it from CRAN:
 
 ``` r
 install.packages("biscale")
@@ -111,7 +105,36 @@ GitHub with `remotes`:
 
 ``` r
 # install.packages("remotes")
-remotes::install_github("slu-openGIS/biscale")
+remotes::install_github("chris-prener/biscale")
+```
+
+### Installing Suggested Dependencies
+
+Since the package does not directly use functions from `sf`, it is a
+suggested dependency rather than a required one. However, the most
+direct approach to using `biscale` is with `sf` objects, and we
+therefore recommend users install `sf`. Windows and macOS users should
+be able to install `sf` without significant issues unless they are
+building from source. Linux users will need to install several open
+source spatial libraries to get `sf` itself up and running.
+
+The other suggested dependency that users may want to consider
+installing is `cowplot`. All of the examples in the package
+documentation utilize it to construct final map images that combine the
+map with the legend. Like `sf`, it is suggested because none of the
+functions in `biscale` call `cowplot` directly.
+
+If you want to use them, you can either install these packages
+individually (faster) or install all of the suggested dependencies at
+once (slower, will also give you a number of other packages you may or
+may not want):
+
+``` r
+## install just cowplot and sf
+install.packages(c("cowplot", "sf"))
+
+## install all suggested dependencies
+install.packages("biscale", dependencies = TRUE)
 ```
 
 ## Usage
@@ -136,7 +159,7 @@ The `biscale` package comes with some sample data from St. Louis, MO
 that you can use to check out the bivariate mapping workflow. Our first
 step is to create our classes for bivariate mapping. `biscale` currently
 supports a both two-by-two and three-by-three tables of classes, created
-with the `bi_class()` function: :
+with the `bi_class()` function:
 
 ``` r
 # create classes
@@ -148,7 +171,7 @@ provide breaks at 33.33% and 66.66% percent (i.e. tercile breaks) for
 three-by-three palettes. Other options are `"equal"`, `"fisher"`, and
 `"jenks"`. These are specified with the optional `style` argument. The
 `dim` argument is used to adjust whether a two-by-two and three-by-three
-tables of classes is returned
+tables of classes is returned.
 
 Once breaks are created, we can use `bi_scale_fill()` as part of our
 `ggplot()` call:
@@ -157,7 +180,7 @@ Once breaks are created, we can use `bi_scale_fill()` as part of our
 # create map
 map <- ggplot() +
   geom_sf(data = data, mapping = aes(fill = bi_class), color = "white", size = 0.1, show.legend = FALSE) +
-  bi_scale_fill(pal = "DkBlue", dim = 3) +
+  bi_scale_fill(pal = "GrPink", dim = 3) +
   labs(
     title = "Race and Income in St. Louis, MO",
     subtitle = "Dark Blue (DkBlue) Palette"
@@ -165,11 +188,12 @@ map <- ggplot() +
   bi_theme()
 ```
 
-Other options for palettes include `"Brown"`, `"DkCyan"`, `"DkViolet"`,
-and `"GrPink"`. The `bi_theme()` function applies a simple theme without
-distracting elements, which is preferable given the already elevated
-complexity of a bivarite map. We need to specify the dimensions of the
-palette for `bi_scale_fill()` as well.
+There are a variety of other options for palettes. See the “Bivarite
+Palettes” vignette or `?bi_pal` for more details. The `bi_theme()`
+function applies a simple theme without distracting elements, which is
+preferable given the already elevated complexity of a bivariate map. We
+need to specify the dimensions of the palette for `bi_scale_fill()` as
+well.
 
 To add a legend to our map, we need to create a second `ggplot` object.
 We can use `bi_legend()` to accomplish this, which allows us to easily
@@ -177,7 +201,7 @@ specify the fill palette, the x and y axis labels, and their size along
 with the dimensions of the palette:
 
 ``` r
-legend <- bi_legend(pal = "DkBlue",
+legend <- bi_legend(pal = "GrPink",
                     dim = 3,
                     xlab = "Higher % White ",
                     ylab = "Higher Income ",
@@ -188,7 +212,7 @@ Note that
 [`plotmath`](https://stat.ethz.ch/R-manual/R-devel/library/grDevices/html/plotmath.html)
 is used to draw the arrows since Unicode arrows are font dependent. This
 happens internally as part of `bi_legend()` - you don’t need to include
-them in your `xlab` and `ylab` arguments\!
+them in your `xlab` and `ylab` arguments!
 
 With our legend drawn, we can then combine the legend and the map with
 `cowplot`. The values needed for this stage will be subject to
@@ -201,34 +225,13 @@ finalPlot <- ggdraw() +
   draw_plot(legend, 0.2, .65, 0.2, 0.2)
 ```
 
-### Breaks for Bivariate Mapping
+The completed map, created with the sample code in this README, looks
+like this:
 
-The map at the top of the README uses the default `"quantile"` style for
-calculating breaks. The other options, `"equal"`, `"fisher"`, and
-`"jenks"`, will produce narrower ranges for the percent white variable
-in particular:
-
-![](man/figures/biscale.005.png)
-
-### Palettes for Bivariate Mapping
-
-In addition to the `"DkBlue"` palette show in the first map, there are a
-number of other options for palettes (including `"Brown"`, which is not
-shown here) for two-by-two mapping:
-
-![](man/figures/biscale.002.png)
-
-These same options exist for three-by-three mapping as well:
-
-![](man/figures/biscale.003.png)
-
-All color palettes, including `"Brown"`, can be previewed by using the
-`bi_pal()` function or by checking out that function’s documentation on
-the [package
-website](https://slu-opengis.github.io/biscale/reference/bi_pal.html).
+![](man/figures/biscale.004.jpeg)
 
 ## Contributor Code of Conduct
 
 Please note that this project is released with a [Contributor Code of
-Conduct](https://slu-opengis.github.io/biscale/CODE_OF_CONDUCT.html). By
-participating in this project you agree to abide by its terms.
+Conduct](https://chris-prener.github.io/biscale/CODE_OF_CONDUCT.html).
+By participating in this project you agree to abide by its terms.

@@ -1,38 +1,54 @@
 #' Create Object for Drawing Legend
 #'
-#' @description Creates a \code{ggplot} object containing a legend that is specific
-#'     to bivariate mapping.
+#' @description Creates a \code{ggplot} object containing a legend that is
+#'     specific to bivariate mapping.
 #'
-#' @usage bi_legend(pal, dim = 3, xlab, ylab, size)
+#' @usage bi_legend(pal, dim = 3, xlab, ylab, size = 10, flip_axes = FALSE,
+#'     rotate_pal = FALSE, pad_width = NA, pad_color = "#ffffff",
+#'     breaks = NULL, arrows = TRUE)
 #'
-#' @param pal A palette name; one of \code{"Brown"}, \code{"DkBlue"},
-#'     \code{"DkCyan"}, \code{"DkViolet"}, or \code{"GrPink"}.
-#' @param dim The dimensions of the palette, either \code{2} for a two-by-two palette or
-#'     \code{3} for a three-by-three palette.
+#' @param pal A palette name or a vector containing a custom palette. See
+#'     the help file for \code{\link{bi_pal}} for complete list of built-in palette
+#'     names. If you are providing a custom palette, it must follow the formatting
+#'     described in the 'Advanced Options' vignette.
+#' @param dim The dimensions of the palette. To use the built-in palettes,
+#'     this value must be either \code{2}, \code{3}, or \code{4}. A value of
+#'     \code{3}, for example, would be used to create a three-by-three bivariate
+#'     map with a total of 9 classes.
+#'
+#'     If you are using a custom palette, this value may be larger (though these
+#'     maps can be very hard to interpret). See the 'Advanced Options' vignette
+#'     for details on the relationship between \code{dim} values and palette size.
 #' @param xlab Text for desired x axis label on legend
 #' @param ylab Text for desired y axis label on legend
-#' @param size Size of axis labels
+#' @param size A numeric scalar; size of axis labels
+#' @param flip_axes A logical scalar; if \code{TRUE}, the axes of the palette
+#'     will be flipped. If \code{FALSE} (default), the palette will be displayed
+#'     on its original axes. Custom palettes with 'dim' greater
+#'     than 4 cannot take advantage of flipping axes.
+#' @param rotate_pal A logical scalar; if \code{TRUE}, the palette will be
+#'     rotated 180 degrees. If \code{FALSE} (default), the palette will be
+#'     displayed in its original orientation. Custom palettes with 'dim' greater
+#'     than 4 cannot take advantage of palette rotation.
+#' @param pad_width An optional numeric scalar; controls the width of padding
+#'     between tiles in the legend
+#' @param pad_color An optional character scalar; controls the color of padding
+#'     between tiles in the legend
+#' @param breaks An optional list created by \code{bi_class_breaks}. Depending
+#'     on the options selected when making the list, labels will placed
+#'     showing the corresponding range of values for each axis or, if
+#'     \code{split = TRUE}, showing the individual breaks.
+#' @param arrows A logical scalar; if \code{TRUE} (default), directional arrows
+#'     will be added to both the x and y axes of the legend. If you want to
+#'     suppress these arrows, especially if you are supplying breaks to create
+#'     a more detailed legend, this parameter can be set of \code{FALSE}.
 #'
 #' @return A \code{ggplot} object with a bivariate legend.
 #'
-#' @importFrom dplyr mutate tibble
-#' @importFrom ggplot2 aes coord_fixed element_text geom_tile ggplot labs
-#'     scale_fill_identity theme
-#' @importFrom rlang enquo quo_name
-#' @importFrom tidyr separate
+#' @seealso \code{\link{bi_pal}}
 #'
 #' @examples
-#' # construct 2x2 legend
-#' legend <- bi_legend(pal = "GrPink",
-#'                     dim = 2,
-#'                     xlab = "Higher % White ",
-#'                     ylab = "Higher Income ",
-#'                     size = 16)
-#'
-#' # print legend
-#' legend
-#'
-#' # construct 3x3 legend
+#' # sample 3x3 legend
 #' legend <- bi_legend(pal = "GrPink",
 #'                     dim = 3,
 #'                     xlab = "Higher % White ",
@@ -42,39 +58,39 @@
 #' # print legend
 #' legend
 #'
+#' # sample 3x3 legend with breaks
+#' ## create vector of breaks
+#' break_vals <- bi_class_breaks(stl_race_income, style = "quantile",
+#'     x = pctWhite, y = medInc, dim = 3, dig_lab = c(x = 4, y = 5),
+#'     split = TRUE)
+#'
+#' ## create legend
+#' legend <- bi_legend(pal = "GrPink",
+#'                     dim = 3,
+#'                     xlab = "Higher % White ",
+#'                     ylab = "Higher Income ",
+#'                     size = 16,
+#'                     breaks = break_vals,
+#'                     arrows = FALSE)
+#'
+#' # print legend
+#' legend
+#'
 #' @export
-bi_legend <- function(pal, dim = 3, xlab, ylab, size = 10){
+bi_legend <- function(pal, dim = 3, xlab, ylab, size = 10, flip_axes = FALSE,
+                      rotate_pal = FALSE, pad_width = NA, pad_color = '#ffffff',
+                      breaks = NULL, arrows = TRUE){
 
   # global binding
   bi_class = bi_fill = x = y = NULL
 
   # check parameters
   if (missing(pal) == TRUE){
-    stop("A palette must be specified for the 'pal' argument.")
+    stop("A palette name or a custom palette vector must be specified for the 'pal' argument. Please see bi_pal's help file for a list of included palettes.")
   }
 
-  if ("bi_pal_custom" %in% class(pal) == TRUE) {
-
-    if (dim == 2 & length(pal) != 4){
-      stop("There is a mismatch between the length of your custom palette object and the given dimensions.")
-    } else if (dim == 3 & length(pal) != 9){
-      stop("There is a mismatch between the length of your custom palette object and the given dimensions.")
-    }
-
-  } else if ("bi_pal_custom" %in% class(pal) == FALSE){
-
-    if (pal %in% c("Brown", "DkBlue", "DkCyan", "DkViolet", "GrPink") == FALSE){
-      stop("The given palette is not one of the allowed options for bivariate mapping. Please choose one of: 'Brown', 'DkBlue', 'DkCyan', 'DkViolet', or 'GrPink'.")
-    }
-
-  }
-
-  if (is.numeric(dim) == FALSE){
-    stop("The 'dim' argument only accepts the numeric values '2' or '3'.")
-  }
-
-  if (dim != 2 & dim != 3){
-    stop("The 'dim' argument only accepts the numeric values '2' or '3'.")
+  if (is.logical(arrows) == FALSE){
+    stop("A logical scalar must be supplied for 'arrows'. Please provide either 'TRUE' or 'FALSE'.")
   }
 
   if (missing(xlab) == TRUE){
@@ -97,49 +113,104 @@ bi_legend <- function(pal, dim = 3, xlab, ylab, size = 10){
     stop("The 'size' argument must be a numeric value.")
   }
 
+  # validate palette
+  pal_validate(pal = pal, dim = dim, flip_axes = flip_axes, rotate_pal = rotate_pal)
+
+  # create palette
+  if (length(pal) == 1){
+    leg <- bi_pal_pull(pal = pal, dim = dim, flip_axes = flip_axes, rotate_pal = rotate_pal)
+  } else if (length(pal) > 1){
+    leg <- pal
+  }
+
+  # build legend
+  out <- bi_legend_build(leg = leg, dim = dim, xlab = xlab, ylab = ylab, size = size,
+                         pad_width = pad_width, pad_color = pad_color, breaks = breaks, arrows = arrows)
+
+  # return output
+  return(out)
+
+}
+
+bi_legend_build <- function(leg, dim, xlab, ylab, size, pad_width, pad_color, breaks, arrows){
+
+  # global bindings
+  bi_fill = x = y = NULL
+
   # nse
-  xQN <- rlang::quo_name(rlang::enquo(xlab))
-  yQN <- rlang::quo_name(rlang::enquo(ylab))
+  xQN <- as.name(xlab)
+  yQN <- as.name(ylab)
 
-  # obtain palette
-  if ("bi_pal_custom" %in% class(pal) == TRUE) {
+  # create tibble for plotting
+  leg <- data.frame(
+    bi_class = names(leg),
+    bi_fill = leg
+  )
 
-    x <- pal
+  leg$x <- as.integer(substr(leg$bi_class, 1, 1))
+  leg$y <- as.integer(substr(leg$bi_class, 3, 3))
 
-  } else if ("bi_pal_custom" %in% class(pal) == FALSE){
+  # create ggplot2 legend object
+  ## initial build
+  legend <- ggplot2::ggplot() +
+    ggplot2::geom_tile(data = leg, mapping = ggplot2::aes(x = x, y = y, fill = bi_fill), lwd = pad_width, col = pad_color) +
+    ggplot2::scale_fill_identity()
 
-    if (pal == "DkViolet"){
-      x <- pal_dkviolet(n = dim)
-    } else if (pal == "GrPink"){
-      x <- pal_grpink(n = dim)
-    } else if (pal == "DkBlue"){
-      x <- pal_dkblue(n = dim)
-    } else if (pal == "DkCyan"){
-      x <- pal_dkcyan(n = dim)
-    } else if (pal == "Brown"){
-      x <- pal_brown(n = dim)
+  ## optionally add breaks
+  if (is.null(breaks) == FALSE){
+
+    breaks_include <- TRUE
+
+    if (length(breaks$bi_x) == dim){
+
+      breaks_seq <- seq(from = 1, to = dim, by = 1)
+
+    } else if (length(breaks$bi_x) == dim+1){
+
+      breaks_seq <- seq(from = 0.5, to = dim+0.5, by = 1)
+
     }
+
+    legend <- legend +
+      ggplot2::scale_x_continuous(
+        breaks = breaks_seq,
+        labels = breaks$bi_x,
+        expand = c(.015, .015)) +
+      ggplot2::scale_y_continuous(
+        breaks = breaks_seq,
+        labels = breaks$bi_y,
+        expand = c(.015, .015))
+
+  } else {
+
+    breaks_include <- FALSE
 
   }
 
-  # create tibble for plotting
-  x <- dplyr::tibble(
-    bi_class = names(x),
-    bi_fill = x
-  )
+  ## add arrows
+  if (arrows == TRUE) {
 
-  # reformat
-  leg <- tidyr::separate(x, bi_class, into = c("x", "y"), sep = "-")
-  leg <- dplyr::mutate(leg, x = as.integer(x), y = as.integer(y))
+    legend <- legend +
+      ggplot2::labs(x = substitute(paste(xQN, ""%->%"")), y = substitute(paste(yQN, ""%->%"")))
 
-  # create ggplot2 legend object
-  legend <- ggplot2::ggplot() +
-    ggplot2::geom_tile(data = leg, mapping = ggplot2::aes(x = x, y = y, fill = bi_fill)) +
-    ggplot2::scale_fill_identity() +
-    ggplot2::labs(x = substitute(paste(xQN, ""%->%"")), y = substitute(paste(yQN, ""%->%""))) +
-    bi_theme() +
+  } else if (arrows == FALSE){
+
+    legend <- legend +
+      ggplot2::labs(x = xQN, y = yQN)
+
+  }
+
+  ## final legend elements
+  legend <- legend +
     ggplot2::theme(axis.title = ggplot2::element_text(size = size)) +
     ggplot2::coord_fixed()
+
+  ## add theme
+  if (breaks_include == TRUE){
+    legend <- legend + bi_theme_legend(base_size = size)
+  } else if (breaks_include == FALSE){
+    legend <- legend + bi_theme(base_size = size)
+  }
 
   # return output
   return(legend)

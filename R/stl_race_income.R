@@ -2,7 +2,8 @@
 #'
 #' @description A simple features data set containing the geometry and associated attributes
 #'     for the 2013-2017 American Community Survey estimates for median household income and the
-#'     percentage of white residents in St. Louis.
+#'     percentage of white residents in St. Louis. This version of the sample data are stored
+#'     as polygon data.
 #'
 #' @docType data
 #'

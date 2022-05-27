@@ -2,19 +2,50 @@
 % Please edit documentation in R/bi_pal.R
 \name{bi_pal}
 \alias{bi_pal}
-\title{Palette Preview and Hex Values}
+\title{Preview Palettes and Hex Values}
 \usage{
-bi_pal(pal, dim = 3, preview = TRUE)
+bi_pal(pal, dim = 3, preview = TRUE, flip_axes = FALSE, rotate_pal = FALSE)
 }
 \arguments{
-\item{pal}{A palette name; one of \code{"Brown"}, \code{"DkBlue"},
-\code{"DkCyan"}, \code{"DkViolet"}, or \code{"GrPink"}.}
+\item{pal}{A palette name or a vector containing a custom palette.
+    If you are providing a palette name, it must be one of:
+    \code{"Bluegill"}, \code{"BlueGold"}, \code{"BlueOr"}, \code{"BlueYl"},
+    \code{"Brown"}/\code{"Brown2"}, \code{"DkBlue"}/\code{"DkBlue2"},
+    \code{"DkCyan"}/\code{"DkCyan2"}, \code{"DkViolet"}/\code{"DkViolet2"},
+    \code{"GrPink"}/\code{"GrPink2"}, \code{"PinkGrn"}, \code{"PurpleGrn"},
+    or \code{"PurpleOr"}.
 
-\item{dim}{The dimensions of the palette, either \code{2} for a two-by-two palette or
-\code{3} for a three-by-three palette.}
+    Pairs of palettes, such as \code{"GrPink"}/\code{"GrPink2"}, are included
+    for legacy support. The numbered palettes support four-by-four bivarite
+    maps while the un-numbered ones, which were the five included in the
+    original release of the package, only support two-by-two and
+    three-by-three maps.
 
-\item{preview}{A logical scalar; if \code{TRUE} (default), an image preview will
-be generated. If \code{FALSE}, a vector with hex color values will be returned.}
+    If you are providing a custom palette, it must follow the formatting
+    described in the 'Advanced Options' vignette.}
+
+\item{dim}{The dimensions of the palette. To use the built-in palettes,
+    this value must be either \code{2}, \code{3}, or \code{4}. A value of
+    \code{3}, for example, would be used to create a three-by-three bivariate
+    map with a total of 9 classes.
+
+    If you are using a custom palette, this value may be larger (though these
+    maps can be very hard to interpret). See the 'Advanced Options' vignette
+    for details on the relationship between \code{dim} values and palette size.}
+
+\item{preview}{A logical scalar; if \code{TRUE} (default), an image preview
+will be generated. If \code{FALSE}, a vector with hex color values will
+be returned.}
+
+\item{flip_axes}{A logical scalar; if \code{TRUE} the axes of the palette
+will be flipped. If \code{FALSE} (default), the palette will be displayed
+on its original axes. Custom palettes with 'dim' greater
+than 4 cannot take advantage of flipping axes.}
+
+\item{rotate_pal}{A logical scalar; if \code{TRUE} the palette will be
+rotated 180 degrees. If \code{FALSE} (default), the palette will be
+displayed in its original orientation. Custom palettes with 'dim' greater
+than 4 cannot take advantage of palette rotation.}
 }
 \value{
 If \code{preview = TRUE}, an image preview of the legend will be returned.
@@ -28,59 +59,13 @@ Prints either a visual preview of each palette or the associated
 \details{
 The \code{"Brown"}, \code{"DkBlue"}, \code{"DkCyan"}, and \code{"GrPink"}
     palettes were made by
-    \href{http://www.joshuastevens.net/cartography/make-a-bivariate-choropleth-map/}{Joshua Stevens}.
+    \href{https://www.joshuastevens.net/cartography/make-a-bivariate-choropleth-map/}{Joshua Stevens}.
     The \code{"DkViolet"} palette was made by
     \href{https://timogrossenbacher.ch/2019/04/bivariate-maps-with-ggplot2-and-sf/}{Timo Grossenbacher and Angelo Zehr}.
+    Many of the new palettes were inspired by Branson Fox's earlier work to expand
+    \code{biscale}.
 }
 \examples{
-# brown palette, 2x2 preview
-bi_pal(pal = "Brown", dim = 2)
-
-# brown palette, 2x2 hex values
-bi_pal(pal = "Brown", dim = 2, preview = FALSE)
-
-# brown palette, 3x3 preview
-bi_pal(pal = "Brown", dim = 3)
-
-# brown palette, 3x3 hex values
-bi_pal(pal = "Brown", dim = 3, preview = FALSE)
-
-# dark blue palette, 2x2 preview
-bi_pal(pal = "DkBlue", dim = 2)
-
-# dark blue palette, 2x2 hex values
-bi_pal(pal = "DkBlue", dim = 2, preview = FALSE)
-
-# dark blue palette, 3x3 preview
-bi_pal(pal = "DkBlue", dim = 3)
-
-# dark blue palette, 3x3 hex values
-bi_pal(pal = "DkBlue", dim = 3, preview = FALSE)
-
-# dark cyan palette, 2x2
-bi_pal(pal = "DkCyan", dim = 2)
-
-# dark cyan palette, 2x2 hex values
-bi_pal(pal = "DkCyan", dim = 2, preview = FALSE)
-
-# dark cyan palette, 3x3
-bi_pal(pal = "DkCyan", dim = 3)
-
-# dark cyan palette, 3x3 hex values
-bi_pal(pal = "DkCyan", dim = 3, preview = FALSE)
-
-# dark violet palette, 2x2
-bi_pal(pal = "DkViolet", dim = 2)
-
-# dark violet palette, 2x2 hex values
-bi_pal(pal = "DkViolet", dim = 2, preview = FALSE)
-
-# dark violet palette, 3x3
-bi_pal(pal = "DkViolet", dim = 3)
-
-# dark violet palette, 3x3 hex values
-bi_pal(pal = "DkViolet", dim = 3, preview = FALSE)
-
 # gray pink palette, 2x2
 bi_pal(pal = "GrPink", dim = 2)
 
@@ -92,5 +77,15 @@ bi_pal(pal = "GrPink", dim = 3)
 
 # gray pink palette, 3x3 hex values
 bi_pal(pal = "GrPink", dim = 3, preview = FALSE)
+
+# custom palette
+custom_pal <- c(
+    "1-1" = "#cabed0", # low x, low y
+    "2-1" = "#ae3a4e", # high x, low y
+    "1-2" = "#4885c1", # low x, high y
+    "2-2" = "#3f2949" # high x, high y
+)
+
+bi_pal(pal = custom_pal, dim = 2, preview = FALSE)
 
 }

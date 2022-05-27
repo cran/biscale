@@ -4,71 +4,73 @@
 #'     is used and the \code{bi_class} variable is given as the \code{color} in the aesthetic
 #'     mapping.
 #'
-#' @usage bi_scale_color(pal, dim = 3, ...)
+#' @usage bi_scale_color(pal, dim = 3, flip_axes = FALSE, rotate_pal = FALSE, ...)
 #'
-#' @param pal Either palette name (one of \code{"Brown"}, \code{"DkBlue"},
-#'     \code{"DkCyan"}, \code{"DkViolet"}, or \code{"GrPink"}) or a custom palette
-#'     object created with \code{\link{bi_pal_manual}}.
-#' @param dim The dimensions of the palette, either \code{2} for a two-by-two palette or
-#'     \code{3} for a three-by-three palette.
-#' @param ... Arguments to pass to \code{\link{scale_fill_manual}}
+#' @param pal A palette name or a vector containing a custom palette. See
+#'     the help file for \code{bi_pal} for complete list of built-in palette
+#'     names. If you are providing a custom palette, it must follow the formatting
+#'     described in the 'Advanced Options' vignette.
+#' @param dim The dimensions of the palette. To use the built-in palettes,
+#'     this value must be either \code{2}, \code{3}, or \code{4}. A value of
+#'     \code{3}, for example, would be used to create a three-by-three bivariate
+#'     map with a total of 9 classes.
+#'
+#'     If you are using a custom palette, this value may be larger (though these
+#'     maps can be very hard to interpret). See the 'Advanced Options' vignette
+#'     for details on the relationship between \code{dim} values and palette size.
+#' @param flip_axes A logical scalar; if \code{TRUE} the axes of the palette
+#'     will be flipped. If \code{FALSE} (default), the palette will be displayed
+#'     on its original axes. Custom palettes with 'dim' greater
+#'     than 4 cannot take advantage of flipping axes.
+#' @param rotate_pal A logical scalar; if \code{TRUE} the palette will be
+#'     rotated 180 degrees. If \code{FALSE} (default), the palette will be
+#'     displayed in its original orientation. Custom palettes with 'dim' greater
+#'     than 4 cannot take advantage of palette rotation.
+#' @param ... Arguments to pass to \code{\link{scale_color_manual}}
 #'
 #' @return A \code{ggplot} object with the given bivariate palette applied to the data.
 #'
-#' @importFrom ggplot2 scale_color_manual
+#' @seealso bi_pal
+#'
+#' @examples
+#' # load dependencies
+#' library(ggplot2)
+#'
+#' # add breaks, 3x3
+#' data <- bi_class(stl_race_income, x = pctWhite, y = medInc, style = "quantile", dim = 3)
+#'
+#' # create map
+#' plot <- ggplot() +
+#'   geom_sf(data = data, aes(color = bi_class), size = 2, show.legend = FALSE) +
+#'   bi_scale_color(pal = "GrPink", dim = 3)
 #'
 #' @export
-bi_scale_color <- function(pal, dim = 3, ...){
+bi_scale_color <- function(pal, dim = 3, flip_axes = FALSE, rotate_pal = FALSE, ...){
 
   # check parameters
   if (missing(pal) == TRUE){
-    stop("A palette must be specified for the 'pal' argument. Please choose one of: 'Brown', 'DkBlue', 'DkCyan', 'DkViolet', or 'GrPink'
-         or supply a custom palette created with 'bi_pal_custom()'.")
-  }
-
-  if ("bi_pal_custom" %in% class(pal) == TRUE) {
-
-    if (dim == 2 & length(pal) != 4){
-      stop("There is a mismatch between the length of your custom palette object and the given dimensions.")
-    } else if (dim == 3 & length(pal) != 9){
-      stop("There is a mismatch between the length of your custom palette object and the given dimensions.")
-    }
-
-  } else if ("bi_pal_custom" %in% class(pal) == FALSE){
-
-    if (pal %in% c("Brown", "DkBlue", "DkCyan", "DkViolet", "GrPink") == FALSE){
-      stop("The given palette is not one of the allowed options for bivariate mapping. Please choose one of: 'Brown', 'DkBlue', 'DkCyan', 'DkViolet', or 'GrPink'.")
-    }
-
+    stop("A palette name or a custom palette vector must be specified for the 'pal' argument. Please see bi_pal's help file for a list of included palettes.")
   }
 
   if (is.numeric(dim) == FALSE){
-    stop("The 'dim' argument only accepts the numeric values '2' or '3'.")
+    stop("The 'dim' argument only accepts numeric values.")
   }
 
-  if (dim != 2 & dim != 3){
-    stop("The 'dim' argument only accepts the numeric values '2' or '3'.")
+  if (is.logical(flip_axes) == FALSE){
+    stop("A logical scalar must be supplied for 'flip_axes'. Please provide either 'TRUE' or 'FALSE'.")
   }
 
-  # obtain palette
-  if ("bi_pal_custom" %in% class(pal) == TRUE) {
+  if (is.logical(rotate_pal) == FALSE){
+    stop("A logical scalar must be supplied for 'rotate_pal'. Please provide either 'TRUE' or 'FALSE'.")
+  }
 
+  pal_validate(pal = pal, dim = dim, flip_axes = flip_axes, rotate_pal = rotate_pal)
+
+  # create palette
+  if (length(pal) == 1){
+    x <- bi_pal_pull(pal = pal, dim = dim, flip_axes = flip_axes, rotate_pal = rotate_pal)
+  } else if (length(pal) > 1){
     x <- pal
-
-  } else if ("bi_pal_custom" %in% class(pal) == FALSE){
-
-    if (pal == "DkViolet"){
-      x <- pal_dkviolet(n = dim)
-    } else if (pal == "GrPink"){
-      x <- pal_grpink(n = dim)
-    } else if (pal == "DkBlue"){
-      x <- pal_dkblue(n = dim)
-    } else if (pal == "DkCyan"){
-      x <- pal_dkcyan(n = dim)
-    } else if (pal == "Brown"){
-      x <- pal_brown(n = dim)
-    }
-
   }
 
   # apply to ggplot object
